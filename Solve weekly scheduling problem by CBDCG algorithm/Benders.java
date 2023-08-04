@@ -19,7 +19,7 @@ public class Benders {
     private GRBEnv env;
     private MP mp;
     private SPBranchNPrice sp;
-    private double logicBasedObj;   // logic based 最新的最优目标值
+    private double logicBasedObj;   // the current objective value of logic benders
 
     public Benders(GRBEnv env) throws GRBException {
         this.env = env;
@@ -101,19 +101,19 @@ public class Benders {
             }
             log.info("sp obj: {}", sp.getObjVal());
 
-            //因为考虑了惩罚成本
+            //We need to consider the punish cost
             double currentObjOfSP = 0;
             for(int d=0;d<params.D;d++)
                 currentObjOfSP += mp.getCost_d(d);
             currentObjOfSP += sp.getObjVal();
             log.info("sp obj(include punish): {}", currentObjOfSP);
 
-            if (currentObjOfSP < logicBasedObj) {    // 更新本节点的上界
+            if (currentObjOfSP < logicBasedObj) {    // update the upper bound of this node
                 logicBasedObj = currentObjOfSP;
             }
             saveResult(mp, sp);
             if (mp.getObjVal() > currentObjOfSP - params.EPS) {
-            //if (Math.abs(mp.getObjVal() - currentObjOfSP) <= params.EPS) {
+                //if (Math.abs(mp.getObjVal() - currentObjOfSP) <= params.EPS) {
                 System.out.println("optimal val: " + logicBasedObj);
                 return;
             }
@@ -128,7 +128,7 @@ public class Benders {
         sp.saveResult();
     }
 
-    //	程序运行入口
+    //	The main function
     public static void main(String[] args) throws GRBException, IOException {
         GRBEnv env = new GRBEnv();
         Benders benders = new Benders(env);
